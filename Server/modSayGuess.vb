@@ -44,9 +44,9 @@
         ''' </summary>
         Public Timer As Integer = 99
         ''' <summary>
-        ''' 是否已显示提示。
+        ''' 已显示的提示。
         ''' </summary>
-        Public Hinted As Boolean = False
+        Public Hinted As New List(Of String)
     End Class
 
 #End Region
@@ -117,7 +117,7 @@
         user.Send("Clear¨Game|你说我猜（旁观）¨" &
                            "Timer|" & user.Room.SG.Timer & "|" & If(user.Room.SG.EndWait, "Blue", If(user.Room.SG.CorrectCount = 0, "Orange", "Red")) & "¨" &
                            "Chatable|" & user.Room.SG.EndWait.ToString & "¨" &
-                           "Select¨" &
+                           "SelectClear¨" &
                            "Content|" & If(user.Room.SG.Answer = "",
                                     If(user.Room.SG.EndWait, "描述者未选择题目", "等待描述者选择题目"),
                                     If(user.Room.SG.EndWait, "题目：" & user.Room.SG.Answer, If(user.Room.SG.Timer <= 20, "提示：" & user.Room.SG.Answer.Count & " 个字，" & user.Room.SG.Hint, "提示：" & user.Room.SG.Answer.Count & " 个字"))
@@ -338,7 +338,7 @@ NextPlayer:
         room.SG.ScoreBase = room.GetGameUsers.Count - 1
         room.SG.CorrectCount = 0
         room.SG.EndWait = False
-        room.SG.Hinted = False
+        room.SG.Hinted = New List(Of String)
         '获取题目
         room.SG.Selections = New ArrayList From {SGGet(), SGGet()}
         room.SG.Answer = ""
@@ -355,13 +355,13 @@ NextPlayer:
                 Case SGStates.Observe
                     us.Send("Chat|系统：由 " & player.Name & " 进行描述。|True¨" &
                                    "Content|等待描述者选择题目¨" &
-                                   "Select¨" &
+                                   "SelectClear¨" &
                                    "Timer|99|Orange¨" &
                                    "Chatable|False")
                 Case SGStates.Failed
                     us.Send("Chat|系统：由 " & player.Name & " 进行描述。|True¨" &
                                    "Content|等待描述者选择题目¨" &
-                                   "Select¨" &
+                                   "SelectClear¨" &
                                    "Timer|99|Orange¨" &
                                    "Chatable|True")
             End Select
@@ -378,7 +378,7 @@ NextPlayer:
             frmMain.BoardcastInRoom("Content|描述者未选择题目¨" &
                                                               "Chat|系统：描述者 " & room.SG.Turner.Name & " 未选择题目，本轮结束。|True¨" &
                                                               "Chatable|True¨" &
-                                                              "Select", room)
+                                                              "SelectClear", room)
             room.SG.Timer = 5
         Else
             frmMain.BoardcastInRoom("Content|题目：" & room.SG.Answer, room)
@@ -399,7 +399,7 @@ NextPlayer:
                 room.SG.Turner.SG.Score += sc
                 frmMain.BoardcastInRoom(frmMain.BoardcastList(room), room)
             End If
-            frmMain.BoardcastInRoom(chat & "|True¨Chatable|True¨Select", room)
+            frmMain.BoardcastInRoom(chat & "|True¨Chatable|True¨SelectClear", room)
         End If
         '设置尚未描述的玩家
         Dim unturned As New ArrayList
@@ -433,14 +433,7 @@ NextPlayer:
                     SGTurnEnd(room)
                 End If
             End If
-            If room.SG.Timer = 20 And Not room.SG.Hinted Then
-                '显示第二段提示
-                room.SG.Hinted = True
-                For Each us As formMain.UserData In room.Users
-                    If us.SG.State = SGStates.Failed Or us.SG.State = SGStates.Observe Then us.Send("Chat|提示：题目类别为【" & room.SG.Hint & "】。|True")
-                    If Not us.SG.State = SGStates.Turning Then us.Send("Content|提示：" & room.SG.Answer.Count & " 个字，" & room.SG.Hint)
-                Next
-            ElseIf room.SG.Timer = 69 And room.SG.Answer = "" Then
+            If room.SG.Timer = 69 And room.SG.Answer = "" Then
                 '没有选择题目，强制结束
                 SGTurnEnd(room)
             End If

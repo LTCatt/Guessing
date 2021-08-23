@@ -24,8 +24,8 @@
             <local:Timer x:Name="timerGame" HorizontalAlignment="Left" Height="40" Margin="434,21,0,0" VerticalAlignment="Top" Width="92" Visibility="Collapsed" Interval="999"/>
             <Label x:Name="labGameObserve" Content="旁观者：3 人" Height="30" Margin="0,90,25,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Padding="0" HorizontalAlignment="Right" Opacity="0.5"/>
             <StackPanel Orientation="Horizontal" x:Name="panGameSelect" Height="41" Margin="250,130,25,0" VerticalAlignment="Top">
-                <local:Button x:Name="btnGameSelect1" Height="40" Margin="45,0,0,0" Width="170" Text="提示长度：4 个字" />
-                <local:Button x:Name="btnGameSelect2" Height="40" Margin="30,0,0,0" Width="170" Text="提示类别：MC 物品" />
+                <local:Button x:Name="btnGameSelect1" Height="40" Margin="45,0,0,0" Width="170" Text="发送长度提示：4 个字" />
+                <local:Button x:Name="btnGameSelect2" Height="40" Margin="30,0,0,0" Width="170" Text="发送类别提示：MC 物品" />
             </StackPanel>
         </Grid>
         <Grid x:Name="panRoom" d:IsHidden="True">

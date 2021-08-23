@@ -828,23 +828,36 @@ Public Class formMain
 
             Case "Select"
                 'Select(Integer 选择编号)：选择某个题目编号
-                If u.SG.State = SGStates.Turning Then
-                    '设置题目
-                    u.Room.SG.Answer = u.Room.SG.Selections(Val(Parm))(0)
-                    u.Room.SG.Hint = u.Room.SG.Selections(Val(Parm))(1)
-                    '发送公告
-                    For Each us As UserData In u.Room.Users
-                        If us.SG.State = SGStates.Turning Then
-                            us.Send("Chat|系统：你选择的题目为【" & u.Room.SG.Answer & "】。|True¨" &
-                                           "Content|请描述：" & u.Room.SG.Answer & "¨" &
-                                           "Select¨" &
-                                           "Chatable|True")
-                        Else
-                            us.Send("Chat|系统：本题共 " & u.Room.SG.Answer.Count & " 个字。|True¨" &
-                                           "Content|提示：" & u.Room.SG.Answer.Count & " 个字¨")
-                        End If
-                    Next
-                End If
+                If Not u.SG.State = SGStates.Turning Then Exit Sub
+                Dim Selection As Integer = Parm
+                '设置题目
+                u.Room.SG.Answer = u.Room.SG.Selections(Selection)(0)
+                u.Room.SG.Hint = u.Room.SG.Selections(Selection)(1)
+                u.Room.SG.Hinted = New List(Of String)
+                '发送公告
+                For Each us As UserData In u.Room.Users
+                    If us.SG.State = SGStates.Turning Then
+                        us.Send("Chat|系统：你选择的题目为【" & u.Room.SG.Answer & "】。|True¨" &
+                                "Content|请描述：" & u.Room.SG.Answer & "¨" &
+                                "Hint|" & u.Room.SG.Answer.Length & " 个字|" & u.Room.SG.Hint & "¨" &
+                                "Chatable|True")
+                    Else
+                        us.Send("Content|正在描述")
+                    End If
+                Next
+
+            Case "Hint"
+                'Hint(String 提示内容)：对其余玩家发送提示
+                If Not u.SG.State = SGStates.Turning Then Exit Sub
+                u.Room.SG.Hinted.Add(Parm)
+                For Each us As UserData In u.Room.Users
+                    If Parm.EndsWith("个字") Then
+                        us.Send("Chat|提示：答案长度为【" & Parm & "】。|True")
+                    Else
+                        us.Send("Chat|提示：题目类别为【" & Parm & "】。|True")
+                    End If
+                    If Not us.SG.State = SGStates.Turning Then us.Send("Content|提示：" & Join(u.Room.SG.Hinted.ToArray, "，"))
+                Next
 
         End Select
     End Sub

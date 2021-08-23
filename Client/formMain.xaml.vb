@@ -418,13 +418,10 @@ Public Class formMain
     Private Sub timerGame_Tick() Handles timerGame.Tick
         If UserState = UserStates.Game And Val(labGameTimer.Content) > 0 Then labGameTimer.Content = Val(labGameTimer.Content) - 1
     End Sub
-    Private Sub btnGameSelect1_Click(sender As Object, e As EventArgs) Handles btnGameSelect1.Click
-        Dim th As New Thread(Sub() ClientSend("Select|0"))
-        th.Start()
-    End Sub
-    Private Sub btnGameSelect2_Click(sender As Object, e As EventArgs) Handles btnGameSelect2.Click
-        Dim th As New Thread(Sub() ClientSend("Select|1"))
-        th.Start()
+    Private Sub btnGameSelect1_Click(sender As Button, e As EventArgs) Handles btnGameSelect1.Click, btnGameSelect2.Click
+        Dim SendContent As String = sender.Tag
+        RunInThread(Sub() ClientSend(SendContent))
+        sender.IsEnabled = False
     End Sub
 
 #End Region
@@ -559,18 +556,34 @@ Public Class formMain
                                   End Sub)
 
             Case "Select"
-                'Select(String? 选择1, String? 选择2)：改变选题区显示，若隐藏选题区则无参数
-                Dispatcher.Invoke(Sub()
-                                      If Parm = "" Then
-                                          '隐藏
-                                          panChat.Margin = New Thickness(250, 130, 25, 25)
-                                      Else
-                                          '显示
-                                          panChat.Margin = New Thickness(250, 200, 25, 25)
-                                          btnGameSelect1.Text = Parms(0)
-                                          btnGameSelect2.Text = Parms(1)
-                                      End If
-                                  End Sub)
+                'Select(String 选择1, String 选择2)：改变选题区显示
+                RunInUi(Sub()
+                            '显示
+                            panChat.Margin = New Thickness(250, 200, 25, 25)
+                            btnGameSelect1.Text = Parms(0)
+                            btnGameSelect1.Tag = "Select|0"
+                            btnGameSelect1.IsEnabled = True
+                            btnGameSelect2.Text = Parms(1)
+                            btnGameSelect2.Tag = "Select|1"
+                            btnGameSelect2.IsEnabled = True
+                        End Sub)
+
+            Case "Hint"
+                'Hint(String 提示1, String 提示2)：让选题区显示提示选项
+                RunInUi(Sub()
+                            '显示
+                            panChat.Margin = New Thickness(250, 200, 25, 25)
+                            btnGameSelect1.Text = "发送长度提示：" & Parms(0)
+                            btnGameSelect1.Tag = "Hint|" & Parms(0)
+                            btnGameSelect1.IsEnabled = True
+                            btnGameSelect2.Text = "发送类别提示：" & Parms(1)
+                            btnGameSelect2.Tag = "Hint|" & Parms(1)
+                            btnGameSelect2.IsEnabled = True
+                        End Sub)
+
+            Case "SelectClear"
+                'SelectClear：隐藏选题区
+                RunInUi(Sub() panChat.Margin = New Thickness(250, 130, 25, 25))
 
         End Select
     End Sub

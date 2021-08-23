@@ -15,7 +15,9 @@ Content		String 内容...								改变游戏显示区内容
 Timer		Integer 时间, String 颜色					设置倒计时
 Observe		Integer 人数									显示旁观者人数
 Chatable	Boolean 是否可以聊天							启用或关闭聊天
-Select		String? 选择1, String? 选择2					改变选题区显示，若隐藏选题区则无参数
+Select		String 选择1, String 选择2					改变选题区显示
+Hint		String 提示1, String 提示2					让选题区显示提示选项
+SelectClear												隐藏选题区
 
 ———— 服务端指令集 ————
 
@@ -30,3 +32,4 @@ Prepare		Boolean 是否准备								改变准备状态
 Start													开始游戏
 Kick		String 玩家名								踢出玩家
 Select		Integer 选择编号								选择某个题目编号
+Hint		String 提示内容								对其余玩家发送提示
