@@ -75,6 +75,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Base\ModAni.vb" />
+    <Compile Include="Base\ModBase.vb" />
     <Compile Include="Controls\Button.xaml.vb">
       <DependentUpon>Button.xaml</DependentUpon>
     </Compile>
@@ -133,7 +135,6 @@
     <Import Include="System.Windows.Navigation" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Modules.vb" />
     <Compile Include="My Project\AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>

@@ -7,7 +7,8 @@ Public Class formMain
 
     Public Const LoadTitle As String = "你说我猜"
     Private Sub LoadForm() Handles Me.Loaded
-        frmMain = Me
+        FrmMain = Me
+        AniStartRun()
         Title = LoadTitle
     End Sub
 

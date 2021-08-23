@@ -1,111 +1,168 @@
 ﻿Public Class Button
 
     '声明
-    Public Event Click(ByVal sender As Object, ByVal e As EventArgs) '自定义事件
+    Public Event Click(sender As Object, e As EventArgs) '自定义事件
 
-    '自定义属性 
+    '自定义属性
+    Public Uuid As Integer = GetUUID()
     Public Property Text As String
         Get
             Return labText.Text
         End Get
-        Set(ByVal value As String)
+        Set(value As String)
             labText.Text = value
         End Set
     End Property '显示文本
+    Public Shared ReadOnly TextProperty As DependencyProperty = DependencyProperty.Register("Text", GetType(String), GetType(Button), New PropertyMetadata(New PropertyChangedCallback(
+                                                                                                                                                               Sub(sender As DependencyObject, e As DependencyPropertyChangedEventArgs)
+                                                                                                                                                                   If Not IsNothing(sender) Then CType(sender, Button).labText.Text = e.NewValue
+                                                                                                                                                               End Sub)))
     Public Property TextPadding As Thickness
         Get
             Return labText.Padding
         End Get
-        Set(ByVal value As Thickness)
+        Set(value As Thickness)
             labText.Padding = value
         End Set
     End Property
-    Private _ColorType As State = State.COMMON  '配色方案
-    Public Property ColorType As State
+    Private _ColorType As ColorState = ColorState.Normal  '配色方案
+    Public Property ColorType As ColorState
         Get
             Return _ColorType
         End Get
-        Set(ByVal value As State)
+        Set(value As ColorState)
             _ColorType = value
             RefreshColor()
         End Set
     End Property
-    Public Enum State As Byte
-        COMMON = 0
-        HIGHLIGHT = 1
-        RED = 2
+    Public Enum ColorState
+        Normal = 0
+        Highlight = 1
+        Red = 2
     End Enum
+    '属性穿透
+    Public Shared Shadows ReadOnly PaddingProperty As DependencyProperty = DependencyProperty.Register("Padding", GetType(Thickness), GetType(Button), New PropertyMetadata(New PropertyChangedCallback(
+        Sub(sender As Button, e As DependencyPropertyChangedEventArgs) If sender IsNot Nothing Then sender.PanFore.Padding = e.NewValue)))
+    Public Overloads Property Padding As Thickness
+        Get
+            Return PanFore.Padding
+        End Get
+        Set(value As Thickness)
+            PanFore.Padding = value
+        End Set
+    End Property
+    Public Property RealRenderTransform As Transform
+        Get
+            Return PanFore.RenderTransform
+        End Get
+        Set(value As Transform)
+            PanFore.RenderTransform = value
+        End Set
+    End Property
 
     '自定义事件
-    Private Sub RefreshColor() Handles Me.MouseEnter, Me.MouseLeave, Me.Loaded, Me.IsEnabledChanged
+    Private Const AnimationColorIn As Integer = 100
+    Private Const AnimationColorOut As Integer = 200
+    Private Sub RefreshColor(Optional obj = Nothing, Optional e = Nothing) Handles Me.MouseEnter, Me.MouseLeave, Me.Loaded, Me.IsEnabledChanged
         Try
-            If Me.IsEnabled Then
-                Select Case Me._ColorType '选取颜色种类
-                    Case State.COMMON
-                        If Me.IsMouseOver Then
-                            '指向
-                            AniStart({ _
-                                     AaBackGround(Border, New MyColor(Color.FromArgb(255, 248, 248, 248)) - Border.Background, 150),
-                                     AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 42, 42, 42)) - Me.BorderBrush, 150),
-                                     AaOpacity(Me, 1 - Me.Opacity, 200)
-                                 }, "BtnColor" & Me.Name)
-                        Else
-                            '普通
-                            AniStart({ _
-                                     AaBackGround(Border, New MyColor(Color.FromArgb(128, 248, 248, 248)) - Border.Background, 150),
-                                     AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 42, 42, 42)) - Me.BorderBrush, 150),
-                                     AaOpacity(Me, 0.8 - Me.Opacity, 200)
-                                 }, "BtnColor" & Me.Name)
-                        End If
-                    Case State.HIGHLIGHT
-                        If Me.IsMouseOver Then
-                            '高亮指向
-                            AniStart({
-                                     AaBackGround(Border, New MyColor(Color.FromArgb(255, 248, 248, 248)) - Border.Background, 150),
-                                     AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 10, 10, 10)) - Me.BorderBrush, 150),
-                                     AaOpacity(Me, 1 - Me.Opacity, 200)
-                                 }, "BtnColor" & Me.Name)
-                        Else
-                            '高亮普通
-                            AniStart({
-                                     AaBackGround(Border, New MyColor(Color.FromArgb(128, 248, 248, 248)) - Border.Background, 150),
-                                     AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 10, 10, 10)) - Me.BorderBrush, 150),
-                                     AaOpacity(Me, 0.8 - Me.Opacity, 200)
-                                 }, "BtnColor" & Me.Name)
-                        End If
-                    Case State.RED
-                        If Me.IsMouseOver Then
-                            '红色指向
-                            AniStart({ _
-                                     AaBackGround(Border, New MyColor(Color.FromArgb(255, 248, 248, 248)) - Border.Background, 150),
-                                     AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 200, 20, 20)) - Me.BorderBrush, 150),
-                                     AaOpacity(Me, 1 - Me.Opacity, 200)
-                                 }, "BtnColor" & Me.Name)
-                        Else
-                            '红色普通
-                            AniStart({ _
-                                     AaBackGround(Border, New MyColor(Color.FromArgb(128, 248, 248, 248)) - Border.Background, 150),
-                                     AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 200, 20, 20)) - Me.BorderBrush, 150),
-                                     AaOpacity(Me, 0.8 - Me.Opacity, 200)
-                                 }, "BtnColor" & Me.Name)
-                        End If
-                End Select
+            If IsLoaded AndAlso AniControlEnabled = 0 Then '防止默认属性变更触发动画
+
+                If IsEnabled Then
+                    Select Case ColorType
+                        Case ColorState.Normal
+                            If IsMouseOver Then
+                                '指向（Main 3）
+                                AniStart({AaColor(PanFore, Border.BorderBrushProperty, "ColorBrush3", AnimationColorIn)}, "Button Color " & Uuid)
+                            Else
+                                '普通（Main 1）
+                                AniStart({AaColor(PanFore, Border.BorderBrushProperty, "ColorBrush1", AnimationColorOut)}, "Button Color " & Uuid)
+                            End If
+                        Case ColorState.Highlight
+                            If IsMouseOver Then
+                                '指向（Main 3）
+                                AniStart({AaColor(PanFore, Border.BorderBrushProperty, "ColorBrush3", AnimationColorIn)}, "Button Color " & Uuid)
+                            Else
+                                '高亮（Main 2）
+                                AniStart({AaColor(PanFore, Border.BorderBrushProperty, "ColorBrush2", AnimationColorOut)}, "Button Color " & Uuid)
+                            End If
+                        Case ColorState.Red
+                            If IsMouseOver Then
+                                '红色指向
+                                AniStart({AaColor(PanFore, Border.BorderBrushProperty, "ColorBrushRedLight", AnimationColorIn)}, "Button Color " & Uuid)
+                            Else
+                                '红色
+                                AniStart({AaColor(PanFore, Border.BorderBrushProperty, "ColorBrushRedDark", AnimationColorOut)}, "Button Color " & Uuid)
+                            End If
+                    End Select
+                Else
+                    '不可用（Gray 4）
+                    AniStart({AaColor(PanFore, Border.BorderBrushProperty, ColorGray4 - PanFore.BorderBrush, AnimationColorOut)}, "Button Color " & Uuid)
+                End If
             Else
-                '灰色（不可用）
-                AniStart({ _
-                        AaBackGround(Border, New MyColor(Color.FromArgb(128, 248, 248, 248)) - Border.Background, 150),
-                        AaBorderBrush(Me, New MyColor(Color.FromArgb(255, 144, 144, 144)) - Me.BorderBrush, 150),
-                        AaOpacity(Me, 0.8 - Me.Opacity, 200)
-                     }, "BtnColor" & Me.Name)
+
+                AniStop("Button Color " & Uuid)
+                If IsEnabled Then
+                    Select Case ColorType
+                        Case ColorState.Normal
+                            If IsMouseOver Then
+                                PanFore.SetResourceReference(Border.BorderBrushProperty, "ColorBrush3")
+                            Else
+                                PanFore.SetResourceReference(Border.BorderBrushProperty, "ColorBrush1")
+                            End If
+                        Case ColorState.Highlight
+                            If IsMouseOver Then
+                                PanFore.SetResourceReference(Border.BorderBrushProperty, "ColorBrush3")
+                            Else
+                                PanFore.SetResourceReference(Border.BorderBrushProperty, "ColorBrush2")
+                            End If
+                        Case ColorState.Red
+                            If IsMouseOver Then
+                                PanFore.SetResourceReference(Border.BorderBrushProperty, "ColorBrushRedLight")
+                            Else
+                                PanFore.SetResourceReference(Border.BorderBrushProperty, "ColorBrushRedDark")
+                            End If
+                    End Select
+                Else
+                    PanFore.BorderBrush = ColorGray4
+                End If
+
             End If
         Catch ex As Exception
-            ExShow(ex, "刷新按钮出错")
+            Log(ex, "刷新按钮颜色出错")
         End Try
     End Sub
 
-    '默认事件
-    Private Sub Button_Mouse(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs) Handles Me.MouseLeftButtonUp
-        RaiseEvent Click(sender, e)
+    '鼠标点击判定（务必放在点击事件之后，以使得 Button_MouseUp 先于 Button_MouseLeave 执行）
+    Private Sub Button_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles Me.MouseLeftButtonUp
+        If IsMouseDown Then
+            Log("[Control] 按下按钮：" & Text)
+            RaiseEvent Click(sender, e)
+        End If
+    End Sub
+    Private IsMouseDown As Boolean = False
+    Private Sub Button_MouseDown(sender As Object, e As MouseButtonEventArgs) Handles Me.MouseLeftButtonDown
+        IsMouseDown = True
+        Focus()
+        AniStart({
+                 AaScaleTransform(PanFore, 0.955 - CType(PanFore.RenderTransform, ScaleTransform).ScaleX, 80,, New AniEaseOutFluent(AniEasePower.ExtraStrong)),
+                 AaScaleTransform(PanFore, -0.01, 700,, New AniEaseOutFluent(AniEasePower.Middle))
+                 }, "Button Scale " & Uuid)
+    End Sub
+    Private Sub Button_MouseEnter() Handles Me.MouseEnter
+        AniStart(AaColor(PanFore, BackgroundProperty, If(_ColorType = ColorState.Red, "ColorBrushRedBack", "ColorBrush9"), AnimationColorIn), "Button Background " & Uuid)
+    End Sub
+    Private Sub Button_MouseUp() Handles Me.MouseLeftButtonUp
+        If Not IsMouseDown Then Exit Sub
+        IsMouseDown = False
+        AniStart({
+               AaScaleTransform(PanFore, 1 - CType(PanFore.RenderTransform, ScaleTransform).ScaleX, 300, 10, New AniEaseOutFluent(AniEasePower.Middle))
+           }, "Button Scale " & Uuid)
+    End Sub
+    Private Sub Button_MouseLeave() Handles Me.MouseLeave
+        AniStart(AaColor(PanFore, BackgroundProperty, "ColorBrushHalfWhite", AnimationColorOut), "Button Background " & Uuid)
+        If Not IsMouseDown Then Exit Sub
+        IsMouseDown = False
+        AniStart(AaScaleTransform(PanFore, 1 - CType(PanFore.RenderTransform, ScaleTransform).ScaleX, 800,, New AniEaseOutFluent(AniEasePower.Strong)), "Button Scale " & Uuid)
     End Sub
 
 End Class

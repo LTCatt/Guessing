@@ -349,7 +349,7 @@ NextPlayer:
                 Case SGStates.Turning
                     us.Send("Chat|系统：由你进行描述，请选择一个题目。|True¨" &
                                    "Content|请从下方两个题目中选择一个¨" &
-                                   "Select|" & room.SG.Selections(0)(0) & "|" & room.SG.Selections(1)(0) & "¨" &
+                                   "Select|" & room.SG.Selections(0)(0) & "（" & room.SG.Selections(0)(1) & "）|" & room.SG.Selections(1)(0) & "（" & room.SG.Selections(1)(1) & "）¨" &
                                    "Timer|99|Orange¨" &
                                    "Chatable|False")
                 Case SGStates.Observe

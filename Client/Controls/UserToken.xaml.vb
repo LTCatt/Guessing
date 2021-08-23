@@ -48,7 +48,7 @@
         InitializeComponent()
         On Error Resume Next
         Dim parms() As String = data.Split("/")
-        Color = GetEnumFromString(GetType(Colors), parms(0))
+        Color = GetStringFromEnum(CType(parms(0), Colors))
         RightText = parms(1)
         LeftText = parms(2)
     End Sub

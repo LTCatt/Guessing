@@ -16,7 +16,7 @@
             </Grid.Background>
             <Label x:Name="labGameTitle" Content="游戏界面" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="25" Margin="30,25,0,0" Padding="0" Height="40" VerticalContentAlignment="Center"/>
             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,10,0" Orientation="Horizontal">
-                <local:Button x:Name="btnGameExit" Width="100" Height="40" FontSize="14" Text="退出" Margin="0,0,15,0"/>
+                <local:Button x:Name="btnGameExit" Width="100" Height="40" Text="退出" Margin="0,0,15,0"/>
             </StackPanel>
             <Label x:Name="labGameContent" Content="Label" Height="30" Margin="292,90,25,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Padding="0" HorizontalAlignment="Left"/>
             <Rectangle HorizontalAlignment="Left" Height="30" Margin="250,90,0,0" VerticalAlignment="Top" Width="30" RadiusX="2" RadiusY="2" Stroke="{Binding Foreground, ElementName=labGameTimer}" StrokeThickness="2"/>
@@ -24,8 +24,8 @@
             <local:Timer x:Name="timerGame" HorizontalAlignment="Left" Height="40" Margin="434,21,0,0" VerticalAlignment="Top" Width="92" Visibility="Collapsed" Interval="999"/>
             <Label x:Name="labGameObserve" Content="旁观者：3 人" Height="30" Margin="0,90,25,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Padding="0" HorizontalAlignment="Right" Opacity="0.5"/>
             <StackPanel Orientation="Horizontal" x:Name="panGameSelect" Height="41" Margin="250,130,25,0" VerticalAlignment="Top">
-                <local:Button x:Name="btnGameSelect1" Height="40" Margin="45,0,0,0" Width="140"/>
-                <local:Button x:Name="btnGameSelect2" Height="40" Margin="45,0,0,0" Width="140"/>
+                <local:Button x:Name="btnGameSelect1" Height="40" Margin="45,0,0,0" Width="170" Text="提示长度：4 个字" />
+                <local:Button x:Name="btnGameSelect2" Height="40" Margin="30,0,0,0" Width="170" Text="提示类别：MC 物品" />
             </StackPanel>
         </Grid>
         <Grid x:Name="panRoom" d:IsHidden="True">
@@ -37,8 +37,8 @@
             </Grid.Background>
             <Label x:Name="labRoomName" Content="XXX 的房间" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="25" Margin="30,25,0,0" Padding="0" Height="40" VerticalContentAlignment="Center"/>
             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,10,0" Orientation="Horizontal">
-                <local:Button x:Name="btnRoomPrepare" Width="100" Height="40" FontSize="14" Text="准备" Margin="0,0,15,0"/>
-                <local:Button x:Name="btnRoomExit" Width="100" Height="40" FontSize="14" Text="退出" Margin="0,0,15,0"/>
+                <local:Button x:Name="btnRoomPrepare" Width="100" Height="40" Text="准备" Margin="0,0,15,0"/>
+                <local:Button x:Name="btnRoomExit" Width="100" Height="40" Text="退出" Margin="0,0,15,0"/>
             </StackPanel>
         </Grid>
         <ListBox x:Name="panList" Margin="22,88,0,25" HorizontalAlignment="Left" Width="213" Background="{x:Null}" BorderBrush="{x:Null}" ScrollViewer.CanContentScroll="False">
@@ -67,9 +67,9 @@
                 </LinearGradientBrush>
             </Grid.Background>
             <Label Content="游戏大厅" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="25" Margin="30,25,0,0" Padding="0" Height="40" VerticalContentAlignment="Center"/>
-            <local:Button x:Name="btnCenterCreate" Text="创建房间" VerticalAlignment="Top" Margin="0,25,25,0" Height="40" FontSize="14" HorizontalAlignment="Right" Width="100"/>
+            <local:Button x:Name="btnCenterCreate" Text="创建房间" VerticalAlignment="Top" Margin="0,25,25,0" Height="40" HorizontalAlignment="Right" Width="100"/>
             <ListBox x:Name="listCenter" Margin="25,90,25,25" FontSize="14" />
-            <local:Button x:Name="btnCenterJoin" Text="加入房间" HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Margin="0,25,140,0" Height="40" FontSize="14" IsEnabled="False"/>
+            <local:Button x:Name="btnCenterJoin" Text="加入房间" HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Margin="0,25,140,0" Height="40" IsEnabled="False"/>
         </Grid>
         <Grid x:Name="panLogin" d:IsHidden="True">
             <Grid.Background>
@@ -82,7 +82,7 @@
                 <Label Content="用户名" HorizontalAlignment="Center" FontSize="16" Margin="0,20,0,5"/>
                 <TextBox x:Name="textLogin" Width="250" MaxLength="15" Margin="0,0,0,10" FontSize="14" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" BorderBrush="Black" UndoLimit="10"/>
                 <Label x:Name="labLogin" Foreground="Red" Margin="0,10,0,5" HorizontalAlignment="Center" FontSize="14" Content=" "/>
-                <local:Button x:Name="btnLogin" Text="登录"  Width="100" Height="40" FontSize="14" Margin="0,0,0,5" />
+                <local:Button x:Name="btnLogin" Text="登录"  Width="100" Height="40" Margin="0,0,0,5" />
                 <!--<TextBlock TextWrapping="Wrap" Text="主要更新日志：&#x0a;＋ 细节优化" HorizontalAlignment="Center" Padding="0,50,0,0" />-->
             </StackPanel>
         </Grid>
