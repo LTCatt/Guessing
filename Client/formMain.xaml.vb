@@ -21,7 +21,7 @@ Public Class formMain
     Public Const ClientLength As Integer = 1024
     Public ClientEncoding As Encoding = Encoding.UTF8
     'Public Const ClientPort As Integer = 233
-    Public Const ClientVersion As Integer = 10
+    Public Const ClientVersion As Integer = 11
 #If DEBUG Then
     'Public Const ClientIP As String = "192.168.1.6"
     Public ClientHeartbeatTimeout As Integer = 10000
