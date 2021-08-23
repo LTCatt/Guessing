@@ -494,176 +494,6 @@ Public Module ModBase
 
 #Region "文件"
 
-    '注册表
-    ''' <summary>
-    ''' 重命名一个注册表子键。不可用于包含子键的子键。
-    ''' </summary>
-    Public Sub RegRename(parentKey As Microsoft.Win32.RegistryKey, subKeyName As String, newSubKeyName As String)
-        If parentKey.GetSubKeyNames().Contains(newSubKeyName) Then parentKey.DeleteSubKeyTree(newSubKeyName, False)
-        Dim SourceKey As Microsoft.Win32.RegistryKey = parentKey.OpenSubKey(subKeyName)
-        If IsNothing(SourceKey) Then Exit Sub '没有目标项
-        Dim NewKey As Microsoft.Win32.RegistryKey = parentKey.CreateSubKey(newSubKeyName)
-        If SourceKey.GetSubKeyNames().Length > 0 Then Throw New NotSupportedException("不支持对包含子键的子键进行重命名：" & SourceKey.GetSubKeyNames()(0) & "。")
-        For Each valueName As String In SourceKey.GetValueNames()
-            Dim objValue As Object = SourceKey.GetValue(valueName)
-            Dim valKind As Microsoft.Win32.RegistryValueKind = SourceKey.GetValueKind(valueName)
-            NewKey.SetValue(valueName, objValue, valKind)
-        Next
-        parentKey.DeleteSubKeyTree(subKeyName, False)
-    End Sub
-    ''' <summary>
-    ''' 读取程序所属注册表。
-    ''' </summary>
-    Public Function ReadReg(Key As String, Optional DefaultValue As String = "") As String
-        Try
-            Dim parentKey As Microsoft.Win32.RegistryKey, softKey As Microsoft.Win32.RegistryKey
-            parentKey = My.Computer.Registry.CurrentUser
-            softKey = parentKey.OpenSubKey("Software\PCL", True)
-            If softKey Is Nothing Then
-                ReadReg = DefaultValue '不存在则返回默认值
-            Else
-                Dim readValue As New Text.StringBuilder
-                readValue.AppendLine(softKey.GetValue(Key))
-                Dim value = readValue.ToString.Replace(vbCrLf, "") '去除莫名的回车
-                Return If(value = "", DefaultValue, value) '错误则返回默认值
-            End If
-        Catch ex As Exception
-            Log(ex, "读取注册表出错：" & Key, LogLevel.Hint)
-            Return DefaultValue
-        End Try
-    End Function
-    ''' <summary>
-    ''' 写入程序所属注册表。
-    ''' </summary>
-    Public Sub WriteReg(Key As String, Value As String, Optional ShowException As Boolean = False)
-        Try
-            Dim parentKey As Microsoft.Win32.RegistryKey, softKey As Microsoft.Win32.RegistryKey
-            parentKey = My.Computer.Registry.CurrentUser
-            softKey = parentKey.OpenSubKey("Software\PCL", True)
-            If softKey Is Nothing Then softKey = parentKey.CreateSubKey("Software\PCL") '如果不存在就创建  
-            softKey.SetValue(Key, Value)
-        Catch ex As Exception
-            Log(ex, "写入注册表出错：" & Key, If(ShowException, LogLevel.Hint, LogLevel.Developer))
-            If ShowException Then Throw '如果显示错误就丢一个
-        End Try
-    End Sub
-
-    'Ini 文件
-    Private Class IniCache
-        Public FileContent As String = ""
-        Public KVCache As New Dictionary(Of String, String)
-    End Class
-    Private ReadOnly IniCacheList As New Dictionary(Of String, IniCache)
-    ''' <summary>
-    ''' 清除某 Ini 文件的运行时缓存。
-    ''' </summary>
-    ''' <param name="FileName">文件完整路径或简写文件名。简写将会使用“ApplicationName\文件名.ini”作为路径。</param>
-    Public Sub IniClearCache(FileName As String)
-        '还原文件路径
-        If Not FileName.Contains(":\") Then FileName = Path & "PCL\" & FileName & ".ini"
-        '检索缓存
-        If IniCacheList.ContainsKey(FileName) Then IniCacheList.Remove(FileName)
-    End Sub
-    ''' <summary>
-    ''' 获取 Ini 文件内容，这可能会使用到缓存。
-    ''' </summary>
-    ''' <param name="FileName">文件完整路径或简写文件名。简写将会使用“ApplicationName\文件名.ini”作为路径。</param>
-    Private Function IniGetContent(FileName As String) As IniCache
-        Try
-            '还原文件路径
-            If Not FileName.Contains(":\") Then FileName = Path & "PCL\" & FileName & ".ini"
-            '检索缓存
-            If IniCacheList.ContainsKey(FileName) Then
-                '返回缓存中的信息
-                Dim Cache As New IniCache
-                IniCacheList.TryGetValue(FileName, Cache)
-                Return Cache '防止ByRef导致缓存变更
-            Else
-                Dim Ini As IniCache
-                If File.Exists(FileName) Then
-                    '返回文件信息并且记入缓存
-                    Dim Cache As String = (vbCrLf & ReadFile(FileName) & vbCrLf).Replace(vbCrLf, vbCr).Replace(vbLf, vbCr).Replace(vbCr, vbCrLf).Replace(vbCrLf & vbCrLf, vbCrLf).Replace(vbNullChar, "")
-                    Ini = New IniCache With {.FileContent = Cache}
-                Else
-                    '返回空文件信息
-                    Ini = New IniCache With {.FileContent = ""}
-                End If
-                If Not IniCacheList.ContainsKey(FileName) Then IniCacheList.Add(FileName, Ini) '避免多线程异步执行此方法时造成多次添加项
-                Return Ini
-            End If
-        Catch ex As Exception
-            Log(ex, "读取文件失败：" & FileName, LogLevel.Hint)
-            Return New IniCache With {.FileContent = ""}
-        End Try
-    End Function
-    ''' <summary>
-    ''' 读取Ini文件，这可能会使用到缓存。
-    ''' </summary>
-    ''' <param name="FileName">文件完整路径或简写文件名。简写将会使用“ApplicationName\文件名.ini”作为路径。</param>
-    ''' <param name="Key">键。</param>
-    ''' <param name="DefaultValue">没有找到键时返回的默认值。</param>
-    Public Function ReadIni(FileName As String, Key As String, Optional DefaultValue As String = "") As String
-        Try
-            '获取目前文件
-            Dim NowIni As IniCache = IniGetContent(FileName)
-            If IsNothing(NowIni) Then Return DefaultValue
-            '使用缓存
-            If NowIni.KVCache.ContainsKey(Key) Then Return If(NowIni.KVCache(Key), DefaultValue)
-            '没有缓存，读取文件
-            If NowIni.FileContent.Contains(vbCrLf & Key & ":") Then
-                Dim Ret As String = Mid(NowIni.FileContent, NowIni.FileContent.IndexOf(vbCrLf & Key & ":") + 3)
-                Ret = If(Ret.Contains(vbCrLf), Mid(Ret, 1, Ret.IndexOf(vbCrLf)), Ret).Replace(Key & ":", "")
-                NowIni.KVCache.Add(Key, If(Ret = vbLf, "", Ret))
-                Return If(Ret = vbLf, "", Ret)
-            Else
-                Return DefaultValue
-            End If
-        Catch ex As Exception
-            '读取失败
-            Return DefaultValue
-        End Try
-    End Function
-    ''' <summary>
-    ''' 写入ini文件，这会更新缓存。
-    ''' </summary>
-    ''' <param name="FileName">文件完整路径或简写文件名。简写将会使用“ApplicationName\文件名.ini”作为路径。</param>
-    ''' <param name="Key">键。</param>
-    ''' <param name="Value">值。</param>
-    ''' <remarks></remarks>
-    Public Sub WriteIni(FileName As String, Key As String, Value As String)
-        Try
-
-            '还原文件路径
-            If Not FileName.Contains(":\") Then FileName = Path & "PCL\" & FileName & ".ini"
-            If IsNothing(Value) Then Value = ""
-            Value = Value.Replace(vbCrLf, "")
-            '创建文件夹
-            If Not Directory.Exists(GetPathFromFullPath(FileName)) Then Directory.CreateDirectory(GetPathFromFullPath(FileName))
-            '获取目前文件
-            Dim NowFile As String = IniGetContent(FileName).FileContent
-            If Not NowFile.EndsWith(vbCrLf) Then NowFile += vbCrLf
-            '如果值一样就不处理
-            If NowFile.Contains(vbCrLf & Key & ":" & Value & vbCrLf) Then Exit Sub
-            '处理文件
-            Dim FindResult As String = ReadIni(FileName, Key)
-            If FindResult = "" AndAlso Not NowFile.Contains(vbCrLf & Key & ":") Then
-                '不存在这个键
-                NowFile = NowFile & vbCrLf & Key & ":" & Value & vbCrLf
-            Else
-                '存在这个键
-                NowFile = NowFile.Replace(vbCrLf & Key & ":" & FindResult & vbCrLf, vbCrLf & Key & ":" & Value & vbCrLf)
-            End If
-            WriteFile(FileName, NowFile)
-            '刷新目前缓存
-            IniCacheList(FileName).FileContent = NowFile
-            IniCacheList(FileName).KVCache.Remove(Key)
-            IniCacheList(FileName).KVCache.Add(Key, Value)
-
-        Catch ex As Exception
-            Log(ex, "写入文件失败：" & FileName & "/" & Key & ": " & Value)
-        End Try
-    End Sub
-
     '路径处理
     ''' <summary>
     ''' 从文件路径或者 Url 获取不包含文件名的路径。不包含路径将会抛出异常。
@@ -937,7 +767,7 @@ Public Module ModBase
             File.Delete(Path & FileName)
             Return True
         Catch ex As Exception
-            Log(ex, "没有对文件夹 " & Path & " 的权限，请尝试以管理员权限运行 PCL")
+            Log(ex, "没有对文件夹 " & Path & " 的权限")
             Return False
         End Try
     End Function
@@ -1131,6 +961,16 @@ Re:
     ''' <param name="EnumData">一个已经实例化的枚举类型。</param>
     Public Function GetStringFromEnum(EnumData As [Enum]) As String
         Return [Enum].GetName(EnumData.GetType, EnumData)
+    End Function
+    ''' <summary>
+    ''' 从指定的枚举中查找某字符串对应的枚举项。
+    ''' </summary>
+    ''' <param name="EnumData">源枚举。</param>
+    ''' <param name="Value">对应枚举一项的字符串。</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Function GetEnumFromString(ByVal EnumData As Type, ByVal Value As String)
+        Return [Enum].Parse(EnumData, Value)
     End Function
     ''' <summary>
     ''' 将文件大小转化为适合的文本形式，如“1.28 M”。
