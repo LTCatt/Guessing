@@ -64,7 +64,7 @@ Public Class formMain
     Public Const ServerLength As Integer = 1024
     Public ServerEncoding As Encoding = Encoding.UTF8
     Public Const ServerPort As Integer = 233
-    Public Const ServerVersion As Integer = 10
+    Public Const ServerVersion As Integer = 11
 #If DEBUG Then
     Public Const ServerIP As String = "192.168.1.6"
     Public Const ServerHeartbeatFail As Integer = 10000
