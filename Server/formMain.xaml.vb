@@ -780,7 +780,7 @@ Public Class formMain
 
             Case "Chat"
                 'Chat(String 文本...)：提交聊天信息
-                If My.Computer.Clock.TickCount - u.LastSend < 1000 Then
+                If My.Computer.Clock.TickCount - u.LastSend < 600 Then
                     u.Send("Chat|系统：你说话太快了，缓缓吧……|False")
                     Exit Sub
                 End If

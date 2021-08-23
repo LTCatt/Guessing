@@ -1,34 +1,32 @@
 
 ———— 客户端指令集 ————
 
-Exit		String 退出原因...				退出登录并返回登录页面，在登录页面显示退出原因
-Beat		String 辨识码...				回应心跳包并重置掉线计时
-Chat		String 文本, Boolean 是否加粗			聊天栏增加一行文本，可以换行
-Clear								清空聊天栏
-Msgbox		String 内容...					弹窗
-Center		String[] 名称...				进入大厅，并给出房间列表
-Room		String 名称					进入房间，并给出房间名
-Game		String 标题					进入游戏页面，并给出标题
-List		String[] 颜色/右/左（用户数据）			刷新用户列表
-Start		Boolean 是否可以开始				向房主切换是否可以开始游戏
-Content		String 内容...					改变游戏显示区内容
-Timer		Integer 时间, String 颜色			设置倒计时
-Observe		Integer 人数					显示旁观者人数
-Chatable	Boolean 是否可以聊天				启用或关闭聊天
-Select		String? 选择1, String? 选择2			改变选题区显示，若隐藏选题区则无参数
+Exit		String 退出原因...							退出登录并返回登录页面，在登录页面显示退出原因
+Beat		String 辨识码...								回应心跳包并重置掉线计时
+Chat		String 文本, Boolean 是否加粗					聊天栏增加一行文本，可以换行
+Clear													清空聊天栏
+Msgbox		String 内容...								弹窗
+Center		String[] 名称...								进入大厅，并给出房间列表
+Room		String 名称									进入房间，并给出房间名
+Game		String 标题									进入游戏页面，并给出标题
+List		String[] 颜色/右/左（用户数据）				刷新用户列表
+Start		Boolean 是否可以开始							向房主切换是否可以开始游戏
+Content		String 内容...								改变游戏显示区内容
+Timer		Integer 时间, String 颜色					设置倒计时
+Observe		Integer 人数									显示旁观者人数
+Chatable	Boolean 是否可以聊天							启用或关闭聊天
+Select		String? 选择1, String? 选择2					改变选题区显示，若隐藏选题区则无参数
 
 ———— 服务端指令集 ————
 
-Exit								客户端退出
-Beat		String 辨识码...				重置掉线计时
-Login		Integer 版本号, String 用户名, String MAC	以该客户端版本号与用户名进行登录
-Create								创建游戏房间
-Join		Integer 房间编号				加入游戏房间
-Leave								离开游戏房间
-Chat		String 文本...					提交聊天信息
-Prepare		Boolean 是否准备				改变准备状态
-Start								开始游戏
-Kick		String 玩家名					踢出玩家
-Select		Integer 选择编号				选择某个题目编号
-
-Game|小黑屋¨Timer|-1|Red¨Observe|999¨Clear¨Chat|小黑屋。|True¨List|Red/???????????/小黑屋¨Content|小黑屋¨Chatable|False¨Select
+Exit													客户端退出
+Beat		String 辨识码...								重置掉线计时
+Login		Integer 版本号, String 用户名, String MAC		以该客户端版本号与用户名进行登录
+Create													创建游戏房间
+Join		Integer 房间编号								加入游戏房间
+Leave													离开游戏房间
+Chat		String 文本...								提交聊天信息
+Prepare		Boolean 是否准备								改变准备状态
+Start													开始游戏
+Kick		String 玩家名								踢出玩家
+Select		Integer 选择编号								选择某个题目编号
