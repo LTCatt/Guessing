@@ -509,7 +509,7 @@ Public Class formMain
                 th.Start()
 
             Case "List"
-                'List(String[] 颜色/右/左)：刷新用户列表
+                'List(String[] 颜色/右/左/角标)：刷新用户列表
                 Dispatcher.Invoke(Sub()
                                       panList.Items.Clear()
                                       For Each u As String In Parms

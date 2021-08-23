@@ -10,7 +10,15 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Rectangle x:Name="rectLeft" Fill="#FF8283FF" RadiusX="5" RadiusY="5" Width="{Binding ActualWidth, ElementName=labLeft, Mode=OneWay}"/>
+        <Border x:Name="rectLeft" Background="#FF8283FF" CornerRadius="5" Width="{Binding ActualWidth, ElementName=labLeft, Mode=OneWay}"/>
+        <Border x:Name="rectLeftMark" Background="#FF8283FF" RenderTransformOrigin="0.5,0.5" CornerRadius="5" Width="{Binding ActualWidth, ElementName=labLeft, Mode=OneWay}">
+            <Border.Clip>
+                <PathGeometry Figures="M0 0L12 0L0 12Z" />
+            </Border.Clip>
+            <Border.RenderTransform>
+                <RotateTransform Angle="180" />
+            </Border.RenderTransform>
+        </Border>
         <Label x:Name="labLeft" HorizontalAlignment="Left" HorizontalContentAlignment="Center" FontSize="18" VerticalAlignment="Center" Content="" MinWidth="35" Padding="7,5" FontFamily="Maiandra GD" MinHeight="35" VerticalContentAlignment="Center"/>
         <TextBlock x:Name="labRight" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="14" Grid.Column="1" Height="18" Margin="10,0,0,0"/>
     </Grid>

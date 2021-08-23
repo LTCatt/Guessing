@@ -9,7 +9,7 @@ Msgbox		String 内容...								弹窗
 Center		String[] 名称...								进入大厅，并给出房间列表
 Room		String 名称									进入房间，并给出房间名
 Game		String 标题									进入游戏页面，并给出标题
-List		String[] 颜色/右/左（用户数据）				刷新用户列表
+List		String[] 颜色/右/左/角标（用户数据）			刷新用户列表
 Start		Boolean 是否可以开始							向房主切换是否可以开始游戏
 Content		String 内容...								改变游戏显示区内容
 Timer		Integer 时间, String 颜色					设置倒计时

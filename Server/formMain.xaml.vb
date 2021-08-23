@@ -719,12 +719,13 @@ Public Class formMain
             For Each u As UserData In room.Users
                 Select Case u.GameState
                     Case UserGameStates.NotReady
-                        BoardcastList += "Red/" & u.Name & "/|"
+                        BoardcastList += "Red/" & u.Name & "/"
                     Case UserGameStates.Ready
-                        BoardcastList += "Green/" & u.Name & "/准备|"
+                        BoardcastList += "Green/" & u.Name & "/准备"
                     Case UserGameStates.Master
-                        BoardcastList += "Blue/" & u.Name & "/房主|"
+                        BoardcastList += "Blue/" & u.Name & "/房主"
                 End Select
+                BoardcastList += "/False|"
             Next
         End If
         'Observe

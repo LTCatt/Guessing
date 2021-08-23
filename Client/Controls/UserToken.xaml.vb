@@ -14,11 +14,11 @@
             _Color = value
             Select Case _Color
                 Case Colors.Red
-                    rectLeft.Fill = New MyColor(255, 130, 130)
+                    rectLeft.Background = New MyColor(255, 130, 130)
                 Case Colors.Green
-                    rectLeft.Fill = New MyColor(130, 255, 130)
+                    rectLeft.Background = New MyColor(130, 255, 130)
                 Case Colors.Blue
-                    rectLeft.Fill = New MyColor(130, 130, 255)
+                    rectLeft.Background = New MyColor(130, 130, 255)
             End Select
         End Set
     End Property
@@ -51,6 +51,7 @@
         Color = GetEnumFromString(GetType(Colors), parms(0))
         RightText = parms(1)
         LeftText = parms(2)
+        rectLeftMark.Visibility = If(parms(3), Visibility.Visible, Visibility.Hidden)
     End Sub
 
     Private Sub UserToken_MouseRightButtonUp(sender As Object, e As MouseButtonEventArgs) Handles Me.MouseRightButtonUp

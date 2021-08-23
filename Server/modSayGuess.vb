@@ -98,15 +98,15 @@
         SGList = ""
         '将描述者置顶显示
         For Each u As formMain.UserData In room.Users
-            If u.SG.State = SGStates.Turning Then SGList += "Blue/" & u.Name & "/" & u.SG.Score & "|"
+            If u.SG.State = SGStates.Turning Then SGList += "Blue/" & u.Name & "/" & u.SG.Score & "/" & u.SG.Turned & "|"
         Next
         '显示其他玩家
         For Each u As formMain.UserData In room.Users
             Select Case u.SG.State
                 Case SGStates.Failed
-                    SGList += "Red/" & u.Name & "/" & u.SG.Score & "|"
+                    SGList += "Red/" & u.Name & "/" & u.SG.Score & "/" & u.SG.Turned & "|"
                 Case SGStates.Finished
-                    SGList += "Green/" & u.Name & "/" & u.SG.Score & "|"
+                    SGList += "Green/" & u.Name & "/" & u.SG.Score & "/" & u.SG.Turned & "|"
             End Select
         Next
     End Function
