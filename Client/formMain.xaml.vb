@@ -20,13 +20,13 @@ Public Class formMain
     Public ClientSocket As Socket
     Public Const ClientLength As Integer = 1024
     Public ClientEncoding As Encoding = Encoding.UTF8
-    Public Const ClientPort As Integer = 233
+    'Public Const ClientPort As Integer = 233
     Public Const ClientVersion As Integer = 10
 #If DEBUG Then
-    Public Const ClientIP As String = "192.168.1.6"
+    'Public Const ClientIP As String = "192.168.1.6"
     Public ClientHeartbeatTimeout As Integer = 10000
 #Else
-    Public Const ClientIP As String = "118.25.87.79"
+    'Public Const ClientIP As String = "118.25.87.79"
     Public ClientHeartbeatTimeout As Integer = 5
 #End If
 
@@ -103,6 +103,8 @@ Public Class formMain
     ''' 用户名。
     ''' </summary>
     Public UserName As String
+    Public ClientIP As String
+    Public ClientPort As String
     ''' <summary>
     ''' 用户是否为房主。
     ''' </summary>
@@ -191,12 +193,14 @@ Public Class formMain
     ''' <summary>
     ''' 开始登录。
     ''' </summary>
-    Public Sub LoginOn(name As String)
+    Public Sub LoginOn(name As String, ip As String, port As String)
         If btnLogin.IsEnabled = False Then Exit Sub
         If Not UserState = UserStates.Offline Then Exit Sub
         btnLogin.IsEnabled = False
         labLogin.Content = ""
         UserName = name
+        ClientIP = ip
+        ClientPort = port
         Dim th As New Thread(Sub()
                                  Try
 
@@ -289,7 +293,7 @@ Public Class formMain
 
     '触发登录
     Private Sub btnLogin_Click() Handles btnLogin.Click
-        LoginOn(textLogin.Text.Trim)
+        LoginOn(textLogin.Text.Trim, textClientIP.Text.Trim, textClientPort.Text.Trim)
     End Sub
     Private Sub textLogin_KeyUp(sender As Object, e As KeyEventArgs) Handles textLogin.KeyUp
         If e.Key = Key.Enter And btnLogin.IsEnabled Then btnLogin_Click()
