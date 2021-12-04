@@ -63,13 +63,13 @@ Public Class formMain
     Public ServerSocket As Socket
     Public Const ServerLength As Integer = 1024
     Public ServerEncoding As Encoding = Encoding.UTF8
-    Public Const ServerPort As Integer = 233
-    Public Const ServerVersion As Integer = 11
+    Public Const ServerPort As Integer = 2333
+    Public Const ServerVersion As Integer = 14
 #If DEBUG Then
-    Public Const ServerIP As String = "192.168.1.6"
+    Public Const ServerIP As String = "192.168.1.109"
     Public Const ServerHeartbeatFail As Integer = 10000
 #Else
-    Public Const ServerIP As String = "172.17.0.8"
+    Public Const ServerIP As String = "10.0.8.7"
     Public Const ServerHeartbeatFail As Integer = 2
 #End If
 
@@ -116,7 +116,7 @@ Public Class formMain
                                          .ReceiveTimeout = ServerHeartbeatInterval * 3 + 5000,
                                          .SendTimeout = ServerHeartbeatInterval * 3 + 5000
                                      }
-            ServerSocket.Bind(New IPEndPoint(IPAddress.Parse(ServerIP), 233))
+            ServerSocket.Bind(New IPEndPoint(IPAddress.Parse(ServerIP), ServerPort))
             ServerSocket.Listen(100)
             While True
                 Try
@@ -561,7 +561,7 @@ Public Class formMain
                 SGObserve(user)
             Else
                 user.GameState = If(user.Equals(Master), UserGameStates.Master, UserGameStates.NotReady)
-                frmMain.BoardcastInRoom("Chat|系统：" & user.Name & " 加入了房间。|False¨Chatable|True", Me)
+                frmMain.BoardcastInRoom("Chat|系统：" & user.Name & " 加入了房间。|False¨Chatable|True¨Sureable|False", Me)
             End If
             frmMain.BoardcastInRoom(frmMain.BoardcastList(Me), Me)
             RefreshStartable()
@@ -780,16 +780,16 @@ Public Class formMain
                 If Not u.RoomState = UserRoomStates.Away Then u.Room.Leave(u)
 
             Case "Chat"
-                'Chat(String 文本...)：提交聊天信息
+                'Chat(Boolean 赌狗, String 文本)：提交聊天信息
                 If My.Computer.Clock.TickCount - u.LastSend < 600 Then
                     u.Send("Chat|系统：你说话太快了，缓缓吧……|False")
                     Exit Sub
                 End If
                 u.LastSend = My.Computer.Clock.TickCount
                 If u.Room.Gaming Then
-                    SGChat(Parm, u)
+                    SGChat(Parms(1), Parms(0), u)
                 Else
-                    If Not u.RoomState = UserRoomStates.Away Then BoardcastInRoom("Chat|" & u.Name & "：" & Parm & "|False", u.Room)
+                    If Not u.RoomState = UserRoomStates.Away Then BoardcastInRoom("Chat|" & u.Name & "：" & Parms(1) & "|False", u.Room)
                 End If
 
             Case "Prepare"
@@ -841,7 +841,7 @@ Public Class formMain
                         us.Send("Chat|系统：你选择的题目为【" & u.Room.SG.Answer & "】。|True¨" &
                                 "Content|请描述：" & u.Room.SG.Answer & "¨" &
                                 "Hint|" & u.Room.SG.Answer.Length & " 个字|" & u.Room.SG.Hint & "¨" &
-                                "Chatable|True")
+                                "Chatable|True¨Sureable|False")
                     Else
                         us.Send("Content|正在描述")
                     End If

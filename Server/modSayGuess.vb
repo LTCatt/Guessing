@@ -28,6 +28,10 @@
         ''' </summary>
         Public CorrectCount As Integer = 0
         ''' <summary>
+        ''' 猜对者或使用了一次完成失败的人数。
+        ''' </summary>
+        Public FinishedCount As Integer = 0
+        ''' <summary>
         ''' 一轮结束后的等待。
         ''' </summary>
         Public EndWait As Boolean = False
@@ -116,7 +120,7 @@
     Public Sub SGObserve(user As formMain.UserData)
         user.Send("Clear¨Game|你说我猜（旁观）¨" &
                            "Timer|" & user.Room.SG.Timer & "|" & If(user.Room.SG.EndWait, "Blue", If(user.Room.SG.CorrectCount = 0, "Orange", "Red")) & "¨" &
-                           "Chatable|" & user.Room.SG.EndWait.ToString & "¨" &
+                           "Chatable|" & user.Room.SG.EndWait.ToString & "¨Sureable|False¨" &
                            "SelectClear¨" &
                            "Content|" & If(user.Room.SG.Answer = "",
                                     If(user.Room.SG.EndWait, "描述者未选择题目", "等待描述者选择题目"),
@@ -250,7 +254,7 @@ NextPlayer:
             room.SG.EndWait = True
         ElseIf user.SG.State = SGStates.Failed Then
             '没有猜出来的玩家退出，重新进行结束判断
-            If room.SG.CorrectCount + 1 = room.GetGameUsers.Count Then SGTurnEnd(room)
+            If room.SG.FinishedCount + 1 = room.GetGameUsers.Count Then SGTurnEnd(room)
         End If
     End Sub
 
@@ -259,9 +263,25 @@ NextPlayer:
     ''' <summary>
     ''' 接管聊天。
     ''' </summary>
-    Public Sub SGChat(data As String, u As formMain.UserData)
-        If (u.SG.State = SGStates.Failed And Not u.Room.SG.EndWait) And (data = u.Room.SG.Answer And Not u.Room.SG.Answer = "") Then
-            SGCorrect(u)
+    Public Sub SGChat(data As String, believe As Boolean, u As formMain.UserData)
+        If u.SG.State = SGStates.Failed And Not u.Room.SG.EndWait Then
+            If data = u.Room.SG.Answer And Not u.Room.SG.Answer = "" Then
+                SGCorrect(u, believe)
+                u.Send("Sureable|False")
+            Else
+                frmMain.BoardcastInRoom("Chat|" & u.Name & "：" & data & "|" & If(u.SG.State = SGStates.Turning, "True", "False"), u.Room)
+                If believe Then
+                    Dim RemoveScore As Integer = Math.Ceiling(u.SG.Score / 2)
+                    If RemoveScore = 0 Then
+                        frmMain.BoardcastInRoom("Chat|系统：" & u.Name & " 的超勇尝试失败。|False", u.Room)
+                    Else
+                        u.SG.Score -= RemoveScore
+                        frmMain.BoardcastInRoom("Chat|系统：" & u.Name & " 的超勇尝试失败，扣 " & RemoveScore & " 分！|False¨" &
+                                                          frmMain.BoardcastList(u.Room), u.Room)
+                    End If
+                    u.Send("Sureable|False")
+                End If
+            End If
         Else
             frmMain.BoardcastInRoom("Chat|" & u.Name & "：" & data & "|" & If(u.SG.State = SGStates.Turning, "True", "False"), u.Room)
         End If
@@ -299,12 +319,14 @@ NextPlayer:
     ''' <summary>
     ''' 某人答对了。
     ''' </summary>
-    Private Sub SGCorrect(u As formMain.UserData)
+    Private Sub SGCorrect(u As formMain.UserData, believe As Boolean)
         '改变玩家数据
         u.SG.Score += u.Room.SG.ScoreBase
+        If believe Then u.SG.Score += 2
         u.SG.State = SGStates.Finished
         u.Room.SG.CorrectCount += 1
-        frmMain.BoardcastInRoom("Chat|系统：" & u.Name & " 猜出了答案，得 " & u.Room.SG.ScoreBase & " 分。" & "|False¨" &
+        u.Room.SG.FinishedCount += 1
+        frmMain.BoardcastInRoom("Chat|系统：" & u.Name & " 猜出了答案，得 " & (u.Room.SG.ScoreBase + If(believe, 2, 0)) & " 分" & If(believe, "（超勇尝试成功 +2）", "") & "。" & "|False¨" &
                                                           frmMain.BoardcastList(u.Room), u.Room)
         u.Room.SG.ScoreBase -= 1
         '快速结束
@@ -313,10 +335,10 @@ NextPlayer:
             u.Room.SG.Timer = 30
         End If
         '本轮结束
-        If u.Room.SG.CorrectCount + 1 = u.Room.GetGameUsers.Count Then
+        If u.Room.SG.FinishedCount + 1 = u.Room.GetGameUsers.Count Then
             SGTurnEnd(u.Room)
         Else
-            u.Send("Chatable|False")
+            u.Send("Chatable|False¨Sureable|False")
         End If
     End Sub
 
@@ -336,7 +358,7 @@ NextPlayer:
         '更新状态
         frmMain.BoardcastInRoom(frmMain.BoardcastList(room), room)
         room.SG.ScoreBase = room.GetGameUsers.Count - 1
-        room.SG.CorrectCount = 0
+        room.SG.CorrectCount = 0 : room.SG.FinishedCount = 0
         room.SG.EndWait = False
         room.SG.Hinted = New List(Of String)
         '获取题目
@@ -351,19 +373,19 @@ NextPlayer:
                                    "Content|请从下方两个题目中选择一个¨" &
                                    "Select|" & room.SG.Selections(0)(0) & "（" & room.SG.Selections(0)(1) & "）|" & room.SG.Selections(1)(0) & "（" & room.SG.Selections(1)(1) & "）¨" &
                                    "Timer|99|Orange¨" &
-                                   "Chatable|False")
+                                   "Chatable|False¨Sureable|False")
                 Case SGStates.Observe
                     us.Send("Chat|系统：由 " & player.Name & " 进行描述。|True¨" &
                                    "Content|等待描述者选择题目¨" &
                                    "SelectClear¨" &
                                    "Timer|99|Orange¨" &
-                                   "Chatable|False")
+                                   "Chatable|False¨Sureable|False")
                 Case SGStates.Failed
                     us.Send("Chat|系统：由 " & player.Name & " 进行描述。|True¨" &
                                    "Content|等待描述者选择题目¨" &
                                    "SelectClear¨" &
                                    "Timer|99|Orange¨" &
-                                   "Chatable|True")
+                                   "Chatable|True¨Sureable|True")
             End Select
         Next
         '倒计时
@@ -377,7 +399,7 @@ NextPlayer:
         If room.SG.Answer = "" Then
             frmMain.BoardcastInRoom("Content|描述者未选择题目¨" &
                                                               "Chat|系统：描述者 " & room.SG.Turner.Name & " 未选择题目，本轮结束。|True¨" &
-                                                              "Chatable|True¨" &
+                                                              "Chatable|True¨Sureable|False¨" &
                                                               "SelectClear", room)
             room.SG.Timer = 5
         Else
@@ -399,7 +421,7 @@ NextPlayer:
                 room.SG.Turner.SG.Score += sc
                 frmMain.BoardcastInRoom(frmMain.BoardcastList(room), room)
             End If
-            frmMain.BoardcastInRoom(chat & "|True¨Chatable|True¨SelectClear", room)
+            frmMain.BoardcastInRoom(chat & "|True¨Chatable|True¨Sureable|False¨SelectClear", room)
         End If
         '设置尚未描述的玩家
         Dim unturned As New ArrayList

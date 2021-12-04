@@ -49,15 +49,20 @@
             </ListBox.ItemsPanel>
         </ListBox>
         <Grid x:Name="panChat" Margin="250,200,25,25">
-            <ListBox x:Name="listChat" Margin="0,0,0,40" FontSize="14" Focusable="False" ScrollViewer.CanContentScroll="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <ListBox x:Name="listChat" Grid.ColumnSpan="2" Margin="0,0,0,40" FontSize="14" Focusable="False" ScrollViewer.CanContentScroll="False">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
-            <TextBox x:Name="textChat" Height="25" Margin="0,0,60,0" TextWrapping="Wrap" VerticalAlignment="Bottom" MaxLength="100" VerticalContentAlignment="Center" UndoLimit="20" FontSize="14" Padding="2,0,0,0"/>
-            <local:Button x:Name="btnChat" Text="发送" HorizontalAlignment="Right" Height="25" VerticalAlignment="Bottom" Width="50"/>
+            <CheckBox x:Name="CheckSure" VerticalAlignment="Bottom" Content="我超勇的！" Margin="0,0,10,5" ToolTip="如果答对你可以额外获得 2 分，如果答错则分数减半。在发送消息时按住左 Ctrl 键可以快速启用。" />
+            <TextBox Grid.Column="1" x:Name="textChat" Height="25" Margin="0,0,60,0" TextWrapping="Wrap" VerticalAlignment="Bottom" MaxLength="100" VerticalContentAlignment="Center" UndoLimit="20" FontSize="14" Padding="2,0,0,0"/>
+            <local:Button x:Name="btnChat" Grid.Column="1" Text="发送" HorizontalAlignment="Right" Height="25" VerticalAlignment="Bottom" Width="50"/>
         </Grid>
         <Grid x:Name="panCenter" d:IsHidden="True">
             <Grid.Background>

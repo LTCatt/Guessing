@@ -20,13 +20,13 @@ Public Class formMain
     Public ClientSocket As Socket
     Public Const ClientLength As Integer = 1024
     Public ClientEncoding As Encoding = Encoding.UTF8
-    Public Const ClientPort As Integer = 233
-    Public Const ClientVersion As Integer = 11
+    Public Const ClientPort As Integer = 2333
+    Public Const ClientVersion As Integer = 14
 #If DEBUG Then
-    Public Const ClientIP As String = "192.168.1.6"
+    Public Const ClientIP As String = "192.168.1.109"
     Public ClientHeartbeatTimeout As Integer = 10000
 #Else
-    Public Const ClientIP As String = "118.25.87.79"
+    Public Const ClientIP As String = "119.91.71.4"
     Public ClientHeartbeatTimeout As Integer = 5
 #End If
 
@@ -333,8 +333,10 @@ Public Class formMain
     ''' </summary>
     Private Sub ChatSend() Handles btnChat.Click
         If textChat.Text.Trim = "" Then Exit Sub
-        ClientSend(New RegularExpressions.Regex("[\u0000-\u001F\u007F-\u00A0]").Replace("Chat|" & textChat.Text.Replace("¨", "-").Replace("|", "/"), ""))
+        If Keyboard.IsKeyDown(Key.LeftCtrl) AndAlso CheckSure.Visibility = Visibility.Visible Then CheckSure.IsChecked = True
+        ClientSend(New RegularExpressions.Regex("[\u0000-\u001F\u007F-\u00A0]").Replace("Chat|" & CheckSure.IsChecked & "|" & textChat.Text.Replace("¨", "-").Replace("|", "/"), ""))
         textChat.Text = ""
+        CheckSure.IsChecked = False
     End Sub
     Private Sub textChat_KeyUp(sender As Object, e As KeyEventArgs) Handles textChat.KeyUp
         If e.Key = Key.Enter Then ChatSend()
@@ -456,6 +458,12 @@ Public Class formMain
             Case "Chat"
                 'Chat(String 文本, Boolean 是否加粗)：在聊天栏增加一行文本，由于是在 List 显示故可以换行
                 ChatShow(Parms(0), If(Parms.Length = 1, False, Parms(1)))
+
+            Case "Sureable"
+                'Sureable(Boolean 是否可以启用超勇)：启用或关闭超勇
+                Dispatcher.Invoke(Sub()
+                                      CheckSure.Visibility = If(Parm, Visibility.Visible, Visibility.Collapsed)
+                                  End Sub)
 
             Case "Chatable"
                 'Chatable(Boolean 是否可以聊天)：启用或关闭聊天

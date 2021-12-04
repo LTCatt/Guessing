@@ -15,6 +15,7 @@ Content		String 内容...								改变游戏显示区内容
 Timer		Integer 时间, String 颜色					设置倒计时
 Observe		Integer 人数									显示旁观者人数
 Chatable	Boolean 是否可以聊天							启用或关闭聊天
+Sureable	Boolean 是否可以启用超勇						启用或关闭超勇
 Select		String 选择1, String 选择2					改变选题区显示
 Hint		String 提示1, String 提示2					让选题区显示提示选项
 SelectClear												隐藏选题区
@@ -27,7 +28,7 @@ Login		Integer 版本号, String 用户名, String MAC		以该客户端版本号与用户名进行登
 Create													创建游戏房间
 Join		Integer 房间编号								加入游戏房间
 Leave													离开游戏房间
-Chat		String 文本...								提交聊天信息
+Chat		Boolean 赌狗, String 文本					提交聊天信息
 Prepare		Boolean 是否准备								改变准备状态
 Start													开始游戏
 Kick		String 玩家名								踢出玩家
